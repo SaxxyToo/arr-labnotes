@@ -14,11 +14,24 @@ actual playback duration (e.g. a 60-second file reads as 120 seconds).
 
 ## Cause
 
-Root cause not fully documented in this repo yet beyond what's in the
-filed issue — see #2800 for the reproduction detail. The bug is
-reproducible with synthetic sine-tone audio, meaning it's a duration
-calculation issue for this specific format combination (stereo + one of
-those two sample rates), not a content-dependent bug.
+The doubling is format-specific, not content-specific — confirmed by
+testing across a real folder-based audiobook library and correlating
+every affected file against sample rate + channel count:
+
+| Sample rate | Mono | Stereo |
+|---|---|---|
+| 22050 Hz | never doubled | **always doubled** |
+| 24000 Hz | never doubled | **always doubled** |
+| 44100 Hz | never doubled | never doubled |
+
+The discriminator is exactly **stereo + (22050 Hz or 24000 Hz)** — every
+other combination reads correctly. This points at a duration-calculation
+defect in Grimmory's audio-duration reader (a jaudiotagger-derived
+library) specifically for that sample-rate range in stereo, not a
+per-book or per-encoder issue. Reproducing it with synthetic sine-tone
+audio (no real speech content) at those exact parameters confirms it's
+purely a function of the file's technical format, unrelated to what's
+actually recorded in it.
 
 ## Fix / workaround
 

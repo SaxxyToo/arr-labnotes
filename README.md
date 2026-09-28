@@ -18,7 +18,7 @@ to the filed issues/PRs with supporting detail.
 | Folder | What's in it |
 |---|---|
 | [`notes/`](notes/) | Raw, dated working notes — first draft thinking, as things are being investigated. Not polished. Read `digest/` first; come here for the messy trail. |
-| [`digest/`](digest/) | Curated write-ups, one per bug/topic. Stable structure: symptom, cause, fix/status, links. This is the "what we know" layer. |
+| [`digest/`](digest/) | Curated write-ups, one per bug/topic (`chaptarr/`, `grimmory/`, `other/` for adjacent tools). Stable structure: symptom, cause, fix/status, links. This is the "what we know" layer. Start with [`pipeline-architecture.md`](digest/pipeline-architecture.md) for the generic *arr → metadata-engine → media-server flow these bugs live in. |
 | [`tracker/issues.md`](tracker/issues.md) | One table: everything filed upstream (issues + PRs), which project, current status, and a link to the digest entry with the full story. |
 
 ## Status legend
