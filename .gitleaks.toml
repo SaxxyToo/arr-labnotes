@@ -1,0 +1,46 @@
+# Custom gitleaks rules layered on top of the default ruleset — see
+# .github/workflows/scan-leaks.yml and scripts/scan-leaks.sh, both of
+# which run `gitleaks detect --config .gitleaks.toml`.
+#
+# The stock gitleaks ruleset (https://github.com/gitleaks/gitleaks) already
+# covers generic credential shapes: AWS/GCP/Azure keys, GitHub/GitLab
+# tokens, Slack/Discord/Stripe tokens, private key blocks, high-entropy
+# generic secrets, etc. This file adds ONLY what gitleaks can't know:
+# homelab-specific hostnames, internal IP ranges, and internal file paths
+# that would leak infrastructure detail without being a "credential" in
+# the generic sense.
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "homelab-internal-hostname"
+description = "Internal homelab hostname/device name"
+regex = '''(?i)\b(saxserver|debiantop|minisax)\b'''
+tags = ["homelab", "hostname"]
+
+[[rules]]
+id = "homelab-internal-domain"
+description = "Internal-only domain (not meant for public docs)"
+regex = '''(?i)\b[a-z0-9.-]*\.(saxlab\.dev|nalasden\.cc)\b'''
+tags = ["homelab", "domain"]
+
+[[rules]]
+id = "homelab-private-ipv4"
+description = "Private/internal IPv4 address"
+regex = '''\b(192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})\b'''
+tags = ["homelab", "network"]
+
+[[rules]]
+id = "homelab-internal-path"
+description = "Internal filesystem path (appdata, secrets store, SSH keys)"
+regex = '''(/mnt/user/(appdata|data)|/root/\.hermes/secure|/root/\.ssh/id_ed25519)'''
+tags = ["homelab", "path"]
+
+# Allow the public security-contact address in SECURITY.md even though it
+# matches the internal-domain rule above — it's the one saxlab.dev
+# reference that's meant to be public.
+[allowlist]
+regexes = [
+  '''reports@saxlab\.dev''',
+]

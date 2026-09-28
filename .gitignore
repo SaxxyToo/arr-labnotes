@@ -1,0 +1,7 @@
+# OS/editor cruft
+.DS_Store
+*.swp
+*~
+
+# Local scratch — never meant to be committed
+_scratch.md

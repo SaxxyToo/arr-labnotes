@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Git pre-commit hook: block commits that introduce secrets or
+# homelab-internal identifiers. Activated via:
+#   git config core.hooksPath .githooks
+set -euo pipefail
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+exec "$REPO_ROOT/scripts/scan-leaks.sh" --staged
