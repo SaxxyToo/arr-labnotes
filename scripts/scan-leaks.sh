@@ -6,7 +6,9 @@
 # stock ruleset (AWS/GCP/Azure keys, GitHub/Slack/Stripe tokens, private
 # key blocks, generic high-entropy secrets, ...) PLUS the homelab-specific
 # custom rules in .gitleaks.toml (internal hostnames, private IP ranges,
-# internal filesystem paths).
+# internal filesystem paths). Verified false positives are suppressed via
+# .gitleaks-baseline.json (see scripts/update-baseline.sh) instead of being
+# silently ignored — every suppression is visible and reviewable in the repo.
 #
 # Usage:
 #   scripts/scan-leaks.sh            # scan working tree + git history (pre-push / manual audit)
@@ -18,6 +20,9 @@ set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 CONFIG="${REPO_ROOT}/.gitleaks.toml"
+BASELINE="${REPO_ROOT}/.gitleaks-baseline.json"
+BASELINE_ARGS=()
+[[ -f "$BASELINE" ]] && BASELINE_ARGS=(--baseline-path "$BASELINE")
 
 if ! command -v gitleaks >/dev/null 2>&1; then
   cat >&2 <<'EOF'
@@ -39,10 +44,10 @@ mode="${1:-full}"
 
 case "$mode" in
   --staged)
-    gitleaks protect --source "$REPO_ROOT" --config "$CONFIG" --staged --redact -v
+    gitleaks protect --source "$REPO_ROOT" --config "$CONFIG" "${BASELINE_ARGS[@]}" --staged --redact -v
     ;;
   full|"")
-    gitleaks detect --source "$REPO_ROOT" --config "$CONFIG" --redact -v
+    gitleaks detect --source "$REPO_ROOT" --config "$CONFIG" "${BASELINE_ARGS[@]}" --redact -v
     ;;
   *)
     echo "usage: $0 [--staged]" >&2

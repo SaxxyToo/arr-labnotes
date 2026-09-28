@@ -35,6 +35,13 @@ hook automatically.
 Even if you skip the local hook, every push and PR is scanned server-side
 by the `scan-leaks` GitHub Action — nothing merges without passing it.
 
+If gitleaks flags something you've manually verified is a false positive
+(not a real secret), don't just force-push around it — run
+`scripts/update-baseline.sh`, which walks through every current finding
+and only regenerates `.gitleaks-baseline.json` after you confirm. The
+baseline file is committed and reviewable, so suppressions are never
+silent.
+
 ## Style
 
 - First person, specific, no marketing language.
