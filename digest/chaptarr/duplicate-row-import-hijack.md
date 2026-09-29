@@ -1,8 +1,8 @@
 # Duplicate book rows with conflicting work IDs hijack grabbed imports
 
 - **Project:** Chaptarr
-- **Status:** filed (root cause), two competing import-half fixes open, none merged
-- **Affects:** confirmed as of 2026-09-27, likely present for longer
+- **Status:** filed (root cause); 2026-09-28 diagnostic comment posted on #111; two competing import-half fixes open, none merged
+- **Affects:** confirmed as of 2026-09-27, re-audited 2026-09-28, likely present for longer
 - **Filed:** [Chaptarr#111](https://github.com/Chaptarr/chaptarr/issues/111) (root cause), [PR #113](https://github.com/Chaptarr/chaptarr/pull/113) and [#155](https://github.com/Chaptarr/chaptarr/issues/155) (competing import-half fixes)
 - **Related notes:** —
 
@@ -37,6 +37,23 @@ vs which are live landmines.
 re-creates it. This was independently confirmed by a second reporter in
 the issue thread, not just us.
 
+### Scale and evidence (2026-09-28 audit)
+
+- 3,866 book rows; 95 duplicate groups / 226 rows. 55 groups (143 rows)
+  have **non-intersecting** work IDs — 5 of those hold a monitored row
+  (4 wanted/missing at audit time) — versus 1 of the 40 intersecting
+  groups. The intersection check is what separates the dangerous
+  inventory.
+- 9 `bookImportIncomplete` rejections between 2026-09-23 and 2026-09-27,
+  six of them on one night: one book rejected four times, three of those
+  inside 18 minutes (each against its non-intersecting twin), two
+  same-book snatches 20 seconds apart under different tracker torrent
+  IDs, and three `downloadFailed` events alongside.
+- With MaM unsatisfied slots saturated, the grab guard refused all grabs —
+  the loop didn't just waste downloads, it stalled acquisition until the
+  slot count came down.
+- Detection query and full numbers: [comment on #111, 2026-09-28](https://github.com/Chaptarr/chaptarr/issues/111#issuecomment-5881275562).
+
 ## Fix / workaround
 
 - **No upstream fix merged yet.** Two competing PRs address the import
@@ -54,5 +71,7 @@ the issue thread, not just us.
 ## References
 
 - [Chaptarr#111](https://github.com/Chaptarr/chaptarr/issues/111)
+- [Comment on #111 — refreshed scale, query, rejection history (2026-09-28)](https://github.com/Chaptarr/chaptarr/issues/111#issuecomment-5881275562)
 - [Chaptarr PR #113](https://github.com/Chaptarr/chaptarr/pull/113)
 - [Chaptarr #155](https://github.com/Chaptarr/chaptarr/issues/155)
+- [Chaptarr #262](https://github.com/Chaptarr/chaptarr/issues/262) — sibling-match variant of the same stuck-import symptom (different code path; see [sibling-match-subtitle.md](sibling-match-subtitle.md))
